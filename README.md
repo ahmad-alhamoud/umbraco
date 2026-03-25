@@ -1,216 +1,196 @@
-Umbraco Review Platform
+# Umbraco Review Platform
 
-Inhaltsverzeichnis
+## 📋 Inhaltsverzeichnis
 
-Einführung\
-Projektstruktur\
-Datenspeicherung\
-Funktionen\
-Frontend\
-Architektur\
-Sicherheit\
-Fehlerbehandlung\
-Entwicklungsumgebung\
-Technologien\
-Autorin
+- [Einführung](#einführung)
+- [Projektstruktur](#projektstruktur)
+- [Datenspeicherung](#datenspeicherung)
+- [Funktionen](#funktionen)
+- [Frontend](#frontend)
+- [Architektur](#architektur)
+- [Entwicklungsumgebung](#entwicklungsumgebung)
+- [Autorin](#autorin)
 
-* * * * *
+---
 
-Einführung
+## Einführung
 
-Umbraco Review Platform ist eine webbasierte Bewertungsplattform, die es Benutzern ermöglicht, ihre Erfahrungen mit Umbraco CMS zu teilen. Die Anwendung wurde mit dem .NET-basierten CMS Umbraco entwickelt und bietet eine benutzerfreundliche Oberfläche für das Abgeben von Bewertungen sowie ein Admin-Dashboard zur Verwaltung dieser Bewertungen.
+**Umbraco Review Platform** ist eine webbasierte Bewertungsplattform, die es Benutzern ermöglicht, ihre Erfahrungen mit Umbraco CMS zu teilen. Die Anwendung wurde mit dem .NET-basierten CMS Umbraco entwickelt und bietet eine benutzerfreundliche Oberfläche für das Abgeben von Bewertungen sowie ein Admin-Dashboard zur Verwaltung dieser Bewertungen.
 
-Hauptmerkmale
+### Hauptmerkmale
 
-Benutzerbewertungen -- Besucher können Bewertungen mit 1 bis 5 Sternen und detailliertem Feedback abgeben\
-Admin-Dashboard -- Administratoren können Bewertungen genehmigen oder ablehnen\
-Like-Funktion -- Benutzer können hilfreiche Bewertungen liken\
-Moderation -- Neue Bewertungen müssen vom Admin freigegeben werden\
-Responsive Design -- Optimierte Darstellung auf Desktop, Tablet und Smartphone
+- ✅ **Benutzerbewertungen** – Besucher können Bewertungen mit 1–5 Sternen und detailliertem Feedback abgeben
+- ✅ **Admin-Dashboard** – Administratoren können Bewertungen genehmigen oder ablehnen
+- ✅ **Like-Funktion** – Benutzer können hilfreiche Bewertungen liken
+- ✅ **Moderation** – Neue Bewertungen müssen vom Admin freigegeben werden
+- ✅ **Responsive Design** – Optimierte Darstellung auf Desktop, Tablet und Smartphone
 
-* * * * *
+---
 
-Projektstruktur
+## Projektstruktur
 
-Das Projekt folgt einer klaren und wartbaren Struktur, die den MVC-Pattern von [ASP.NET](https://asp.net/) Core und Umbraco folgt.
+Das Projekt folgt einer klaren und wartbaren Struktur, die den MVC-Pattern (Model-View-Controller) von ASP.NET Core und Umbraco folgt.
 
-UmbracoReviewSite\
-Controllers\
-BewertungsApiController.cs - API-Endpunkte für Admin-Funktionen\
-BewertungsOberflaechenController.cs - Surface Controller für Formulare\
-StartseiteController.cs - Home Controller für einfache Aktionen\
-Models\
-Bewertung.cs - Datenmodell für Bewertungen\
-IBewertungsRepository.cs - Repository-Interface\
-MockBewertungsRepository.cs - In-Memory Repository keine Datenbank\
-Views\
-Startseite.cshtml - Hauptseite mit Bewertungsformular\
-AdminDashboard.cshtml - Admin-Dashboard zur Verwaltung\
-umbraco - Umbraco CMS Systemdateien\
-appsettings.json - Anwendungskonfiguration\
-Program.cs - Anwendungsstartpunkt\
-UmbracoReviewSite.csproj - Projektdatei mit Abhängigkeiten
+UmbracoReviewSite/
+├── Controllers/
+│ ├── BewertungsApiController.cs # API-Endpunkte für Admin-Funktionen
+│ ├── BewertungsOberflaechenController.cs # Surface Controller für Formulare
+│ └── StartseiteController.cs # Home Controller für einfache Aktionen
+├── Models/
+│ ├── Bewertung.cs # Datenmodell für Bewertungen
+│ ├── IBewertungsRepository.cs # Repository-Interface
+│ └── MockBewertungsRepository.cs # In-Memory Repository (keine Datenbank)
+├── Views/
+│ ├── Startseite.cshtml # Hauptseite mit Bewertungsformular
+│ └── AdminDashboard.cshtml # Admin-Dashboard zur Verwaltung
+├── umbraco/ # Umbraco CMS Systemdateien
+├── appsettings.json # Anwendungskonfiguration
+├── Program.cs # Anwendungsstartpunkt
+└── UmbracoReviewSite.csproj # Projektdatei mit Abhängigkeiten
 
-* * * * *
 
-Datenspeicherung
+---
 
-Mock Repository
+## Datenspeicherung
 
-Das Projekt verwendet keine echte Datenbank, sondern ein In-Memory Repository MockBewertungsRepository. Dies ermöglicht eine schnelle Entwicklung ohne Datenbank-Konfiguration. Alle Daten werden im Arbeitsspeicher gehalten und gehen beim Neustart der Anwendung verloren.
+### Mock Repository
 
-Vorteile\
-Keine separate Datenbankinstallation erforderlich\
-Schnelle Entwicklung und Tests\
-Ideal für Präsentationen und Demos
+Das Projekt verwendet **keine echte Datenbank**, sondern ein In-Memory Repository (`MockBewertungsRepository`). Dies ermöglicht eine schnelle Entwicklung ohne Datenbank-Konfiguration. Alle Daten werden im Arbeitsspeicher gehalten und gehen beim Neustart der Anwendung verloren.
 
-* * * * *
+**Vorteile:**
+- Keine separate Datenbankinstallation erforderlich
+- Schnelle Entwicklung und Tests
+- Ideal für Präsentationen und Demos
 
-Funktionen
+```csharp
+public class MockBewertungsRepository : IBewertungsRepository
+{
+    private static List<Bewertung> _bewertungen = new List<Bewertung>();
+    private static int _naechsteId = 1;
 
+    public Task Hinzufuegen(Bewertung bewertung)
+    {
+        bewertung.Id = _naechsteId++;
+        bewertung.ErstellungsDatum = DateTime.Now;
+        bewertung.Likes = 0;
+        bewertung.IstGenehmigt = false;
+        _bewertungen.Add(bewertung);
+        return Task.CompletedTask;
+    }
+}
+
+##Funktionen
 Benutzerbewertungen
+Besucher können auf der Startseite eine Bewertung abgeben. Das Formular enthält:
 
-Besucher können auf der Startseite eine Bewertung abgeben. Das Formular enthält:\
-Name -- Pflichtfeld\
-E-Mail -- Pflichtfeld, wird auf Gültigkeit geprüft\
-Sternebewertung -- 1 bis 5 Sterne als Radio-Buttons\
-Feedback -- Textfeld für detaillierte Rückmeldung
+Name – Pflichtfeld
+
+E-Mail – Pflichtfeld, wird auf Gültigkeit geprüft
+
+Sternebewertung – 1–5 Sterne als Radio-Buttons
+
+Feedback – Textfeld für detaillierte Rückmeldung
 
 Nach dem Absenden wird die Bewertung im Arbeitsspeicher gespeichert, jedoch noch nicht öffentlich angezeigt. Der Administrator muss sie zuerst genehmigen.
 
 Admin-Dashboard
+Das Admin-Dashboard ist unter /admin-dashboard?key=admin123 erreichbar und bietet folgende Funktionen:
 
-Das Admin-Dashboard ist unter admin-dashboard?key=admin123 erreichbar und bietet folgende Funktionen:\
-Übersicht -- Anzahl der ausstehenden Bewertungen\
-Bewertungsliste -- Tabelle mit allen nicht genehmigten Bewertungen\
-Genehmigen Ablehnen -- Ein-Klick-Aktionen mit Bestätigung\
-Automatische Aktualisierung -- Die Liste aktualisiert sich nach jeder Aktion
+Übersicht – Anzahl der ausstehenden Bewertungen
+
+Bewertungsliste – Tabelle mit allen nicht genehmigten Bewertungen
+
+Genehmigen/Ablehnen – Ein-Klick-Aktionen mit Bestätigung
+
+Automatische Aktualisierung – Die Liste aktualisiert sich nach jeder Aktion
 
 Like-Funktion
+Benutzer können hilfreiche Bewertungen liken. Die Like-Funktion:
 
-Benutzer können hilfreiche Bewertungen liken. Die Like-Funktion:\
-Einfach -- Ein Klick auf das Herz-Icon\
-Echtzeit -- Die Anzahl der Likes wird ohne Seitenneuladen aktualisiert\
-Persönlich -- Jeder Benutzer kann eine Bewertung nur einmal liken via localStorage
+Einfach – Ein Klick auf das Herz-Icon
 
-* * * * *
+Echtzeit – Die Anzahl der Likes wird ohne Seitenneuladen aktualisiert
 
-Frontend
+Persönlich – Jeder Benutzer kann eine Bewertung nur einmal liken (via localStorage)
 
+##Frontend
 Design-System
+Das Frontend verwendet ein konsistentes Design-System mit CSS-Variablen:
 
-Das Frontend verwendet ein konsistentes Design-System mit CSS-Variablen.
+:root {
+    --primary-red: #e30613;
+    --dark-red: #c10510;
+    --light-red: #fce4e4;
+    --light-gray: #f8fafc;
+    --border-gray: #e2e8f0;
+    --text-dark: #1e293b;
+    --text-light: #64748b;
+    --white: #ffffff;
+}
 
-primary-red e30613\
-dark-red c10510\
-light-red fce4e4\
-light-gray f8fafc\
-border-gray e2e8f0\
-text-dark 1e293b\
-text-light 64748b\
-white ffffff
+## Architektur
 
-Lange Kommentare
+### Repository-Pattern
 
-Kommentare über 150 Zeichen werden automatisch gekürzt und erhalten einen Mehr lesen-Button.
+Das Repository-Pattern trennt die Datenzugriffslogik von der Geschäftslogik. Dies ermöglicht:
 
-* * * * *
+- **Austauschbarkeit** – Leichter Wechsel zwischen verschiedenen Datenquellen
+- **Testbarkeit** – Einfaches Mocken für Unit-Tests
+- **Wartbarkeit** – Zentrale Datenzugriffslogik
 
-Architektur
+```csharp
+public interface IBewertungsRepository
+{
+    Task<IEnumerable<Bewertung>> HoleBewertungenFuerSeite(int seitenId, bool nurGenehmigte = true);
+    Task<Bewertung?> HoleBewertungNachId(int id);
+    Task Hinzufuegen(Bewertung bewertung);
+    Task Aktualisieren(Bewertung bewertung);
+    Task Loeschen(int id);
+    Task<int> LikeBewertung(int bewertungsId);
+    Task<IEnumerable<Bewertung>> HoleAusstehendeBewertungen();
+}
 
-Repository-Pattern
-
-Das Repository-Pattern trennt die Datenzugriffslogik von der Geschäftslogik. Dies ermöglicht:\
-Austauschbarkeit -- Leichter Wechsel zwischen verschiedenen Datenquellen\
-Testbarkeit -- Einfaches Mocken für Unit-Tests\
-Wartbarkeit -- Zentrale Datenzugriffslogik
-
-Surface Controller
-
-Surface Controller werden für Formulare und Benutzerinteraktionen verwendet. Sie bieten:\
-Anti-Forgery-Token -- Schutz gegen CSRF-Angriffe\
-TempData -- Temporäre Datenspeicherung zum Beispiel Erfolgsmeldungen\
-Redirect -- Umleitung nach Formularabsendung
 
 API Controller
+API Controller werden für asynchrone JavaScript-Anfragen verwendet:
 
-API Controller werden für asynchrone JavaScript-Anfragen verwendet:\
-Genehmigen Ablehnen -- Admin-Aktionen\
-Laden von Bewertungen -- Automatische Aktualisierung\
-Like-Funktion -- Echtzeit-Updates
+Genehmigen/Ablehnen – Admin-Aktionen
 
-* * * * *
+Laden von Bewertungen – Automatische Aktualisierung
 
-Sicherheit
+Like-Funktion – Echtzeit-Updates
 
-Anti-Forgery Token
+[HttpPost]
+public IActionResult Genehmigen(int bewertungsId)
+{
+    try
+    {
+        var bewertung = _bewertungsRepository.HoleBewertungNachId(bewertungsId).Result;
+        if (bewertung == null)
+            return NotFound("Bewertung nicht gefunden.");
 
-Alle Formulare sind mit Anti-Forgery-Token geschützt.
+        bewertung.IstGenehmigt = true;
+        _bewertungsRepository.Aktualisieren(bewertung).Wait();
 
-XSS-Schutz
+        return Redirect("/admin-dashboard?key=admin123");
+    }
+    catch (Exception ex)
+    {
+        return BadRequest($"Fehler: {ex.Message}");
+    }
+}
 
-Benutzereingaben werden beim Anzeigen escaped, um Cross-Site-Scripting XSS zu verhindern.
 
-Admin-Zugang
-
-Der Admin-Bereich ist mit einem einfachen Passwortschutz gesichert key=admin123. Bei Bedarf kann dies durch ein robustes Authentifizierungssystem ersetzt werden.
-
-* * * * *
-
-Fehlerbehandlung
-
-Fehler werden benutzerfreundlich angezeigt:\
-Formularvalidierung -- Alle Felder werden serverseitig geprüft\
-Repository-Fehler -- Fehlermeldungen werden in TempData gespeichert\
-JavaScript-Fehler -- Konsolenausgaben für Entwickler, Benutzer erhalten freundliche Meldungen
-
-* * * * *
-
-Entwicklungsumgebung
-
+##Entwicklungsumgebung
 Voraussetzungen
+.NET SDK 8.0 oder höher
 
-NET SDK 8.0 oder höher\
-Umbraco Templates -- dotnet new install Umbraco.Templates\
-Visual Studio 2022 oder VS Code mit C-Erweiterung\
-Keine Datenbank erforderlich -- Das Projekt verwendet In-Memory-Speicherung
+Umbraco Templates – dotnet new install Umbraco.Templates
 
-Projekt ausführen
+Visual Studio 2022 oder VS Code mit C#-Erweiterung
 
-Neues Projekt erstellen\
-dotnet new umbraco --name UmbracoReviewSite\
-cd UmbracoReviewSite
+Keine Datenbank erforderlich – Das Projekt verwendet In-Memory-Speicherung
 
-SQLite-Paket hinzufügen für Umbraco\
-dotnet add package Microsoft.Data.Sqlite
+##Autorin
+Rita – Entwicklerin der Umbraco Review Platform
 
-Projekt ausführen\
-dotnet run
-
-Nach dem Start ist die Anwendung unter https://localhost:xxxxx erreichbar. Der Admin-Bereich ist unter admin-dashboard?key=admin123 verfügbar.
-
-Entwicklung mit VS Code
-
-Empfohlene Erweiterungen:\
-C von Microsoft\
-Razor für Syntax-Highlighting
-
-* * * * *
-
-Technologien
-
-Technologie Beschreibung\
-NET 8.0 Plattform für die Anwendung\
-Umbraco 13 Content Management System\
-SQLite Datenbank für Umbraco\
-Mock Repository In-Memory-Speicherung für Bewertungen keine Datenbank\
-Razor Templating-Engine für Views\
-CSS Grid Flexbox Responsive Layout\
-Font Awesome Icons für Like-Buttons\
-Git Versionskontrolle
-
-* * * * *
-
-Autorin
-
-Rita -- Entwicklerin der Umbraco Review Platform
