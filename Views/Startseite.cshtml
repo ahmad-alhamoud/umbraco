@@ -1,0 +1,472 @@
+﻿@using Umbraco.Cms.Web.Common.PublishedModels;
+@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage
+@{
+    Layout = null;
+    var seitenId = Model.Id;
+}
+
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Umbraco Erfahrungsbericht</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-red: #e30613;
+            --dark-red: #c10510;
+            --light-gray: #f8fafc;
+            --border-gray: #e2e8f0;
+            --text-dark: #1e293b;
+            --text-light: #64748b;
+            --white: #ffffff;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #f1f5f9 0%, #e4e9f2 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .feedback-card {
+            background: var(--white);
+            border-radius: 32px;
+            padding: 48px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+            margin-bottom: 40px;
+        }
+
+        h1 {
+            font-size: 28px;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 32px;
+            letter-spacing: -0.5px;
+            border-left: 4px solid var(--primary-red);
+            padding-left: 20px;
+        }
+
+        .input-group {
+            margin-bottom: 24px;
+        }
+
+        .input-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 16px 20px;
+            font-size: 16px;
+            border: 2px solid var(--border-gray);
+            border-radius: 16px;
+            transition: all 0.3s ease;
+            background: var(--light-gray);
+            font-family: 'Inter', sans-serif;
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: var(--primary-red);
+            background: var(--white);
+            box-shadow: 0 0 0 4px rgba(227, 6, 19, 0.1);
+        }
+
+        .input-field::placeholder {
+            color: #94a3b8;
+            font-size: 15px;
+        }
+
+        .rating-container {
+            background: var(--light-gray);
+            border: 2px solid var(--border-gray);
+            border-radius: 16px;
+            padding: 16px 20px;
+        }
+
+        .rating-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .stars-wrapper {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .star-option {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+            flex: 1;
+        }
+
+        .star-option input[type="radio"] {
+            display: none;
+        }
+
+        .star-display {
+            font-size: 32px;
+            color: #cbd5e1;
+            transition: all 0.2s;
+            margin-bottom: 4px;
+        }
+
+        .star-label {
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-light);
+        }
+
+        .star-option input[type="radio"]:checked ~ .star-display {
+            color: #fbbf24;
+        }
+
+        .star-option input[type="radio"]:checked ~ .star-label {
+            color: var(--primary-red);
+            font-weight: 600;
+        }
+
+        .star-option:hover .star-display {
+            transform: scale(1.1);
+            color: #fbbf24;
+        }
+
+        .textarea-field {
+            width: 100%;
+            padding: 16px 20px;
+            font-size: 16px;
+            border: 2px solid var(--border-gray);
+            border-radius: 16px;
+            transition: all 0.3s ease;
+            background: var(--light-gray);
+            font-family: 'Inter', sans-serif;
+            resize: vertical;
+            min-height: 120px;
+        }
+
+        .textarea-field:focus {
+            outline: none;
+            border-color: var(--primary-red);
+            background: var(--white);
+            box-shadow: 0 0 0 4px rgba(227, 6, 19, 0.1);
+        }
+
+        .submit-btn {
+            width: 100%;
+            background: var(--primary-red);
+            color: white;
+            border: none;
+            padding: 18px 32px;
+            font-size: 18px;
+            font-weight: 600;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 16px;
+            letter-spacing: 0.5px;
+            box-shadow: 0 10px 20px -8px rgba(227, 6, 19, 0.3);
+        }
+
+        .submit-btn:hover {
+            background: var(--dark-red);
+            transform: translateY(-2px);
+            box-shadow: 0 15px 25px -8px rgba(227, 6, 19, 0.4);
+        }
+
+        .alert-success {
+            background: #d1fae5;
+            color: #065f46;
+            padding: 16px 20px;
+            border-radius: 16px;
+            margin-bottom: 24px;
+            font-size: 15px;
+            border: 1px solid #a7f3d0;
+        }
+
+        .reviews-section {
+            background: var(--white);
+            border-radius: 32px;
+            padding: 48px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+        }
+
+        .reviews-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 24px;
+            border-left: 4px solid var(--primary-red);
+            padding-left: 20px;
+        }
+
+        .reviews-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .review-card {
+            background: var(--light-gray);
+            border-radius: 20px;
+            padding: 20px;
+            transition: all 0.3s;
+            border: 1px solid var(--border-gray);
+        }
+
+        .review-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 25px -8px rgba(227, 6, 19, 0.1);
+        }
+
+        .review-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .reviewer-name {
+            font-weight: 600;
+            color: var(--text-dark);
+            font-size: 16px;
+        }
+
+        .review-date {
+            color: var(--text-light);
+            font-size: 12px;
+            background: white;
+            padding: 4px 10px;
+            border-radius: 20px;
+        }
+
+        .review-stars {
+            color: #fbbf24;
+            font-size: 16px;
+            margin-bottom: 12px;
+        }
+
+        .review-comment {
+            color: var(--text-dark);
+            line-height: 1.6;
+            font-size: 14px;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+        }
+
+        .review-comment.collapsed {
+            max-height: 80px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .review-comment.collapsed::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 40px;
+            background: linear-gradient(to bottom, transparent, var(--light-gray));
+        }
+
+        .read-more-btn {
+            background: none;
+            border: none;
+            color: var(--primary-red);
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+            margin-top: 8px;
+            padding: 4px 8px;
+            display: inline-block;
+        }
+
+        .read-more-btn:hover {
+            text-decoration: underline;
+        }
+
+        .no-reviews {
+            text-align: center;
+            padding: 60px 20px;
+            background: var(--light-gray);
+            border-radius: 24px;
+            color: var(--text-light);
+            font-size: 16px;
+            border: 2px dashed var(--border-gray);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        @if (TempData["BewertungsErfolg"] != null)
+        {
+            <div class="alert-success">@TempData["BewertungsErfolg"]</div>
+        }
+
+        <div class="feedback-card">
+            <h1>Erzählen Sie uns von Ihrer Erfahrung mit Umbraco</h1>
+            
+            <form method="post" action="/umbraco/surface/BewertungsOberflaechen/BewertungEinreichen">
+                @Html.AntiForgeryToken()
+                
+                <div class="input-group">
+                    <label class="input-label">Name</label>
+                    <input type="text" name="AutorenName" class="input-field" required placeholder="Max Mustermann" />
+                </div>
+
+                <div class="input-group">
+                    <label class="input-label">E-Mail</label>
+                    <input type="email" name="AutorenEmail" class="input-field" required placeholder="max@example.com" />
+                </div>
+
+                <div class="input-group">
+                    <div class="rating-container">
+                        <span class="rating-label">Ihre Bewertung</span>
+                        <div class="stars-wrapper">
+                            @for (int i = 1; i <= 5; i++)
+                            {
+                                <label class="star-option">
+                                    <input type="radio" name="SterneBewertung" value="@i" required />
+                                    <span class="star-display">★</span>
+                                    <span class="star-label">@i</span>
+                                </label>
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label class="input-label">Ihr Feedback</label>
+                    <textarea name="Kommentar" class="textarea-field" required 
+                              placeholder="Was hat Ihnen gefallen? Was könnte verbessert werden?"></textarea>
+                </div>
+
+                <input type="hidden" name="SeitenId" value="@seitenId" />
+                
+                <button type="submit" class="submit-btn">Bewertung absenden</button>
+            </form>
+        </div>
+
+        <div class="reviews-section">
+            <div class="reviews-title">
+                💬 Benutzerbewertungen
+            </div>
+            <div id="bewertungen-container">
+                <div class="no-reviews">
+                    ⏳ Bewertungen werden geladen...
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const MAX_COMMENT_LENGTH = 150;
+
+        function truncateComment(comment, id) {
+            if (comment.length <= MAX_COMMENT_LENGTH) {
+                return `<div class="review-comment">${escapeHtml(comment)}</div>`;
+            }
+            
+            const shortComment = comment.substring(0, MAX_COMMENT_LENGTH);
+            return `
+                <div class="review-comment collapsed" id="comment-${id}">
+                    ${escapeHtml(shortComment)}...
+                </div>
+                <button class="read-more-btn" onclick="toggleComment(${id})">Mehr lesen</button>
+            `;
+        }
+
+        function toggleComment(id) {
+            const commentDiv = document.getElementById(`comment-${id}`);
+            if (commentDiv.classList.contains('collapsed')) {
+                commentDiv.classList.remove('collapsed');
+                commentDiv.style.maxHeight = 'none';
+                const btn = commentDiv.nextElementSibling;
+                btn.textContent = 'Weniger anzeigen';
+            } else {
+                commentDiv.classList.add('collapsed');
+                commentDiv.style.maxHeight = '';
+                const btn = commentDiv.nextElementSibling;
+                btn.textContent = 'Mehr lesen';
+            }
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        async function ladeGenehmigteBewertungen() {
+            try {
+                const seitenId = @seitenId;
+                const response = await fetch('/umbraco/api/BewertungsApi/HoleGenehmigteBewertungen?seitenId=' + seitenId);
+                const bewertungen = await response.json();
+                
+                const container = document.getElementById('bewertungen-container');
+                
+                if (!bewertungen || bewertungen.length === 0) {
+                    container.innerHTML = '<div class="no-reviews">✨ Noch keine Bewertungen. Seien Sie der Erste, der eine Bewertung abgibt!</div>';
+                    return;
+                }
+
+                let html = '<div class="reviews-grid">';
+                bewertungen.forEach(bewertung => {
+                    const sterne = '★'.repeat(bewertung.sterneBewertung) + '☆'.repeat(5 - bewertung.sterneBewertung);
+                    const datum = new Date(bewertung.erstellungsDatum).toLocaleDateString('de-DE');
+                    const commentId = `comment-${bewertung.id}`;
+                    
+                    html += `
+                        <div class="review-card">
+                            <div class="review-header">
+                                <span class="reviewer-name">${escapeHtml(bewertung.autorenName)}</span>
+                                <span class="review-date">${datum}</span>
+                            </div>
+                            <div class="review-stars">${sterne}</div>
+                            <div class="review-comment-wrapper">
+                                ${truncateComment(bewertung.kommentar, bewertung.id)}
+                            </div>
+                        </div>
+                    `;
+                });
+                html += '</div>';
+                
+                container.innerHTML = html;
+            } catch (error) {
+                console.error('Fehler:', error);
+                document.getElementById('bewertungen-container').innerHTML = '<div class="no-reviews" style="color: #e30613;">❌ Fehler beim Laden der Bewertungen</div>';
+            }
+        }
+
+        ladeGenehmigteBewertungen();
+        setInterval(ladeGenehmigteBewertungen, 30000);
+    </script>
+</body>
+</html>
