@@ -31,6 +31,7 @@
 
 Das Projekt folgt einer klaren und wartbaren Struktur, die den MVC-Pattern (Model-View-Controller) von ASP.NET Core und Umbraco folgt.
 
+```
 UmbracoReviewSite/
 ├── Controllers/
 │ ├── BewertungsApiController.cs # API-Endpunkte für Admin-Funktionen
@@ -48,8 +49,8 @@ UmbracoReviewSite/
 ├── Program.cs # Anwendungsstartpunkt
 └── UmbracoReviewSite.csproj # Projektdatei mit Abhängigkeiten
 
+```
 
----
 
 ## Datenspeicherung
 
@@ -79,44 +80,50 @@ public class MockBewertungsRepository : IBewertungsRepository
     }
 }
 
-##Funktionen
-Benutzerbewertungen
+```
+
+## Funktionen
+
+### Benutzerbewertungen
 Besucher können auf der Startseite eine Bewertung abgeben. Das Formular enthält:
 
-Name – Pflichtfeld
+- Name – Pflichtfeld
 
-E-Mail – Pflichtfeld, wird auf Gültigkeit geprüft
+- E-Mail – Pflichtfeld, wird auf Gültigkeit geprüft
 
-Sternebewertung – 1–5 Sterne als Radio-Buttons
+- Sternebewertung – 1–5 Sterne als Radio-Buttons
 
-Feedback – Textfeld für detaillierte Rückmeldung
+- Feedback – Textfeld für detaillierte Rückmeldung
 
-Nach dem Absenden wird die Bewertung im Arbeitsspeicher gespeichert, jedoch noch nicht öffentlich angezeigt. Der Administrator muss sie zuerst genehmigen.
+Nach dem Absenden wird die Bewertung im Arbeitsspeicher gespeichert, jedoch noch nicht öffentlich angezeigt. Der Administrator muss sie zuerst genehmigen
 
-Admin-Dashboard
+
+### Admin-Dashboard
 Das Admin-Dashboard ist unter /admin-dashboard?key=admin123 erreichbar und bietet folgende Funktionen:
 
-Übersicht – Anzahl der ausstehenden Bewertungen
+- Übersicht – Anzahl der ausstehenden Bewertungen
 
-Bewertungsliste – Tabelle mit allen nicht genehmigten Bewertungen
+- Bewertungsliste – Tabelle mit allen nicht genehmigten Bewertungen
 
-Genehmigen/Ablehnen – Ein-Klick-Aktionen mit Bestätigung
+- Genehmigen/Ablehnen – Ein-Klick-Aktionen mit Bestätigung
 
-Automatische Aktualisierung – Die Liste aktualisiert sich nach jeder Aktion
+- Automatische Aktualisierung – Die Liste aktualisiert sich nach jeder Aktion
 
-Like-Funktion
+### Like-Funktion
 Benutzer können hilfreiche Bewertungen liken. Die Like-Funktion:
 
-Einfach – Ein Klick auf das Herz-Icon
+- Einfach – Ein Klick auf das Herz-Icon
 
-Echtzeit – Die Anzahl der Likes wird ohne Seitenneuladen aktualisiert
+- Echtzeit – Die Anzahl der Likes wird ohne Seitenneuladen aktualisiert
 
-Persönlich – Jeder Benutzer kann eine Bewertung nur einmal liken (via localStorage)
+- Persönlich – Jeder Benutzer kann eine Bewertung nur einmal liken (via localStorage)
 
-##Frontend
-Design-System
+
+## Frontend
+### Design-System
 Das Frontend verwendet ein konsistentes Design-System mit CSS-Variablen:
 
+```
 :root {
     --primary-red: #e30613;
     --dark-red: #c10510;
@@ -128,17 +135,19 @@ Das Frontend verwendet ein konsistentes Design-System mit CSS-Variablen:
     --white: #ffffff;
 }
 
+```
+
 ## Architektur
-
 ### Repository-Pattern
-
 Das Repository-Pattern trennt die Datenzugriffslogik von der Geschäftslogik. Dies ermöglicht:
 
-- **Austauschbarkeit** – Leichter Wechsel zwischen verschiedenen Datenquellen
-- **Testbarkeit** – Einfaches Mocken für Unit-Tests
-- **Wartbarkeit** – Zentrale Datenzugriffslogik
+- Austauschbarkeit – Leichter Wechsel zwischen verschiedenen Datenquellen
 
-```csharp
+- Testbarkeit – Einfaches Mocken für Unit-Tests
+
+- Wartbarkeit – Zentrale Datenzugriffslogik
+
+```
 public interface IBewertungsRepository
 {
     Task<IEnumerable<Bewertung>> HoleBewertungenFuerSeite(int seitenId, bool nurGenehmigte = true);
@@ -150,16 +159,19 @@ public interface IBewertungsRepository
     Task<IEnumerable<Bewertung>> HoleAusstehendeBewertungen();
 }
 
+```
 
-API Controller
+
+### API Controller
 API Controller werden für asynchrone JavaScript-Anfragen verwendet:
 
-Genehmigen/Ablehnen – Admin-Aktionen
+- Genehmigen/Ablehnen – Admin-Aktionen
 
-Laden von Bewertungen – Automatische Aktualisierung
+- Laden von Bewertungen – Automatische Aktualisierung
 
-Like-Funktion – Echtzeit-Updates
+- Like-Funktion – Echtzeit-Updates
 
+```
 [HttpPost]
 public IActionResult Genehmigen(int bewertungsId)
 {
@@ -180,8 +192,17 @@ public IActionResult Genehmigen(int bewertungsId)
     }
 }
 
+```
 
-##Entwicklungsumgebung
+### Admin-Zugang
+Der Admin-Bereich ist mit einem einfachen Passwortschutz gesichert (key=admin123). Bei Bedarf kann dies durch ein robustes Authentifizierungssystem ersetzt werden.
+
+```
+var istAdmin = Context.Request.Query["key"] == "admin123";
+
+```
+
+## Entwicklungsumgebung
 Voraussetzungen
 .NET SDK 8.0 oder höher
 
@@ -191,6 +212,21 @@ Visual Studio 2022 oder VS Code mit C#-Erweiterung
 
 Keine Datenbank erforderlich – Das Projekt verwendet In-Memory-Speicherung
 
-##Autorin
-Rita – Entwicklerin der Umbraco Review Platform
+Projekt ausführen
 
+```
+
+# 1. Neues Projekt erstellen
+dotnet new umbraco --name UmbracoReviewSite
+cd UmbracoReviewSite
+
+# 2. SQLite-Paket hinzufügen (für Umbraco)
+dotnet add package Microsoft.Data.Sqlite
+
+# 3. Projekt ausführen
+dotnet run
+
+```
+
+## Autorin
+Rita – Entwicklerin der Umbraco Review Platform
